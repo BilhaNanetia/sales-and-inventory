@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motorbike Spares Sales and Inventory</title>
+    <!-- Add Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS for additional styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='images/motorbike-2893991_1920.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        
+    </style>
+</head>
+<body class="min-h-screen bg-black bg-opacity-50">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-center text-white shadow-text">BeeMoto Sales and Inventory Tracker</h1>
+            <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" aria-label="Logout">Logout</a>
+        </div>
+        
+        <!-- Add Sale Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Add Sale</h2>
+            <form id="addSaleForm" class="space-y-4">
+                <select id="item" required aria-label="Select an item" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Select an item</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <input type="number" id="quantity" placeholder="Quantity" required aria-label="Quantity" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">Add Sale</button>
+            </form>
+        </div>
+
+        <!-- Get Daily Total Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Get Daily Total</h2>
+            <form id="getDailyTotalForm" class="space-y-4">
+                <input type="date" id="totalDate" required aria-label="Date for total" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-700 focus:outline-none focus:shadow-outline">Get Total</button>
+            </form>
+            <p id="dailyTotal" class="mt-4 text-lg font-semibold text-black"></p>
+        </div>
+
+        <!-- View Daily Sales Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">View Daily Sales</h2>
+            <form id="getDailySalesForm" class="space-y-4">
+                <input type="date" id="salesDate" required aria-label="Date for sales" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-purple-500 text-white font-bold py-2 px-4 rounded hover:bg-purple-700 focus:outline-none focus:shadow-outline">View Sales</button>
+            </form>
+            <ul id="dailySales" class="mt-4 space-y-2 text-black"></ul>
+        </div>
+
+        <!-- Get Monthly Total Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Get Monthly Total</h2>
+            <form id="getMonthlyTotalForm" class="space-y-4">
+                <input type="month" id="monthYear" placeholder="Enter year and month (e.g., 2024-07)" required aria-label="Month and year for total" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-700 focus:outline-none focus:shadow-outline">Get Monthly Total</button>
+            </form>
+            <p id="monthlyTotal" class="mt-4 text-lg font-semibold text-black"></p>
+        </div>
+
+        <!-- Get Yearly Total Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Get Yearly Total</h2>
+            <form id="getYearlyTotalForm" class="space-y-4">
+                <input type="number" id="year" placeholder="Enter year (e.g., 2024)" required aria-label="Year for total" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 focus:outline-none focus:shadow-outline">Get Yearly Total</button>
+            </form>
+            <p id="yearlyTotal" class="mt-4 text-lg font-semibold text-black"></p>
+        </div>
+
+        <!-- Add Inventory Item Form -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Add Inventory Item</h2>
+            <form id="addInventoryForm" class="space-y-4">
+                <input type="text" id="inventoryItem" placeholder="Item name" required aria-label="Inventory item name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="inventoryQuantity" placeholder="Quantity" required aria-label="Inventory item quantity" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="number" id="inventoryPrice" placeholder="Price per item (KES)" step="0.01" required aria-label="Inventory item price" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">Add Inventory Item</button>
+            </form>
+        </div>
+
+        <!-- Current Inventory List -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Current Inventory</h2>
+            <ul id="inventoryList" class="mt-4 space-y-2 text-black"></ul>
+        </div>
+
+        <!-- Low Stock Items -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Low Stock Items</h2>
+            <button id="checkLowStockBtn" class="w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-700 focus:outline-none focus:shadow-outline mb-4" aria-label="Check low stock">Check Low Stock</button>
+            <ul id="lowStockList" class="mt-4 space-y-2 text-black"></ul>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
