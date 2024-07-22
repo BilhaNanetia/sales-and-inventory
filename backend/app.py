@@ -285,6 +285,24 @@ def delete_sale():
             return jsonify({'success': True, 'message': 'Sale deleted but inventory update failed'}), 500
     else:
         return jsonify({'success': False, 'error': 'Sale not found'}), 404
+    
+@app.route('/search_inventory', methods=['GET'])
+@login_required
+def search_inventory():
+    query = request.args.get('query', '').lower()
+    
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM inventory
+            WHERE LOWER(item) LIKE ?
+            OR LOWER(CAST(id AS TEXT)) LIKE ?
+        """, (f'%{query}%', f'%{query}%'))
+        items = cursor.fetchall()
+    
+    return jsonify({
+        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3]} for item in items]
+    })
 
 @app.route('/get_monthly_total', methods=['GET'])
 def get_monthly_total():

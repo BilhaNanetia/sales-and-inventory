@@ -26,6 +26,16 @@
             <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" aria-label="Logout">Logout</a>
         </div>
         
+        <!-- Search Inventory -->
+        <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-semibold mb-4">Quick Item Search</h2>
+            <div id="searchContainer" class="flex space-x-2 mb-4">
+                <input type="text" id="searchInput" placeholder="Search for an item..." class="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="searchInventory()" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">Search</button>
+            </div>
+            <div id="searchResults" class="mt-4"></div>
+        </div>
+
         <!-- Add Sale Form -->
         <div class="bg-white bg-opacity-90 shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <h2 class="text-2xl font-semibold mb-4">Add Sale</h2>

@@ -227,5 +227,75 @@ document.getElementById('checkLowStockBtn').addEventListener('click', function()
     .catch(error => handleError(error, 'An error occurred while checking low stock.'));
 });
 
+function searchInventory() {
+    const query = document.getElementById('searchInput').value;
+    
+    fetch(`/search_inventory?query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+            
+            if (data.items.length === 0) {
+                resultsContainer.innerHTML = '<p>No items found.</p>';
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.className = 'w-full';
+            table.innerHTML = `
+                <tr>
+                    <th class="text-left">ID</th>
+                    <th class="text-left">Name</th>
+                    <th class="text-left">Quantity</th>
+                    <th class="text-left">Price</th>
+                    <th class="text-left">Action</th>
+                </tr>
+            `;
+            
+            data.items.forEach(item => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td><button onclick="selectItem(${item.id}, '${item.name}')" class="bg-green-500 text-white px-2 py-1 rounded">Select</button></td>
+                `;
+            });
+            
+            resultsContainer.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while searching the inventory.');
+        });
+}
+
+function selectItem(id, name) {
+    const selectElement = document.getElementById('item');
+    selectElement.value = id;
+    
+    // Trigger the change event to update any dependent fields
+    const event = new Event('change');
+    selectElement.dispatchEvent(event);
+    
+    // Optionally, focus on the quantity input
+    document.getElementById('quantity').focus();
+
+    // Provide feedback to the user
+    alert(`Selected item: ${name}`);
+
+    // Clear the search input and results
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '';
+}
+// Add event listener for Enter key on search input
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchInventory();
+    }
+});
+
 // Load inventory when the page loads
 document.addEventListener('DOMContentLoaded', loadInventory);

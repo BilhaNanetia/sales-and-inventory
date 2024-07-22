@@ -1,3 +1,22 @@
 .shadow-text {
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
+
+#searchContainer {
+    margin-bottom: 20px;
+}
+
+#searchResults table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#searchResults th, #searchResults td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#searchResults th {
+    background-color: #f2f2f2;
+}
