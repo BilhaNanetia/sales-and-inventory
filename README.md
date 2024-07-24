@@ -1,15 +1,29 @@
 # BeeMoto Sales and Inventory Tracker
 ## Overview
-BeeMoto Sales and Inventory Tracker is a web application designed to help manage the sales and inventory of motorbike spares. This application allows users to track sales, manage inventory, and generate various reports for daily, monthly, and yearly totals.
+BeeMoto Sales and Inventory Tracker is a web application designed to help manage the sales and inventory of motorbike spares. This application allows users to track sales, manage inventory, and generate various reports for daily,weekly, monthly, and yearly totals.
 ## Features
-- User Authentication: Secure login and registration system.
-- Sales Management: Add sales records, view daily sales, and check total sales for different periods.
-- Inventory Management: Add new inventory items, update existing inventory, and view current stock levels.
-- Reporting: Get daily, monthly, and yearly totals for sales.
-- Low Stock Alerts: Identify items with low stock levels to prevent inventory shortages.
+- **User Authentication:**
+    - Secure login and registration system.
+    - Restrict access to certain features based on user role (admin or employee)
+- **Sales Management:**
+    - Add sales records
+    - View sales history and transaction details
+    - Update inventory levels automatically after each sale
+- **Inventory Management:**
+    - Add new inventory items
+    - Update existing inventory
+    - Remove items from the inventory
+    - View current stock levels.
+- **Search Functionality:**
+    - Search for spare parts by name or ID
+    - Display search results in alphabetical order
+- **Reporting:**
+    - Get daily, weekly, monthly, and yearly totals for sales.
+- **Low Stock Alerts:**
+    - Identify items with low stock levels to prevent inventory shortages.
 ## Technology Stack
 - Backend:
-  - Python 3.x
+  - Python 3.x 
   - Flask
   - Flask-Login (for user authentication)
   - SQLite
@@ -52,34 +66,62 @@ python app.py
 - New users can sign up for an account on the signup page.
 - Existing users can log in on the login page.
 2. **Adding a Sale:**
-- Search for an item by name or select an item from the drop down and fill in the quantity.You can only add a sale of an item that has been added to the inventory.
+- Search for an item by name or select an item from the drop down and fill in the quantity.**You can only add a sale of an item that has been added to the inventory.**
 - Click "Add Sale" to record the transaction.
-3. **Viewing Daily Total:**
-- Select a date in the "Get Daily Total" section.
-- Click "Get Total" to see the total sales for that day.
-4. **Viewing Daily Sales:**
+3. **Viewing Daily Sales:**
 - Select a date in the "View Daily Sales" section.
 - Click "View Sales" to see a list of all sales for that day.
+4. **Viewing Daily Total:**
+- Select a date in the "Get Daily Total" section.
+- Click "Get Total" to see the total sales for that day.
 5. **Deleting a sale:**
 - Click "Delete" to delete a sale in the "View Daily Sales" section.
-6. **Viewing Monthly Total:**
+6. **Viewing Weekly Total:**
+- Select a date in the "Get Weekly Total" section.
+- **The system calculates the total for the 7-day period starting from the selected date**
+- Click "Get Weekly Total" to see the total for the 7-day period
+7. **Viewing Monthly Total:**
 - Select month and year in the "Get Monthly Total" section
 - Click "Get Monthly Total" to see the total sales for that month
-7. **Viewing Yearly Total:**
+8. **Viewing Yearly Total:**
 - Select year in the "Get Yearly Total" section
 - Click "Get Yearly Total" to see the total sales for that year
-8. **Add inventory Item:**
+9. **Add inventory Item:**
 -  Add new items to the inventory with name, quantity, and price.
-9. **View Current Inventory:**
+10. **View Current Inventory:**
 - See a list of all inventory items.
-10. **Deleting an inventory item:**
+11. **Deleting an inventory item:**
 - Click "Delete" to delete an inventory item in the "Current Inventory" section.
-11. **Check Low Stock:**
-- Identify items that are running low.
-12. **Logout:**
+12. **Check Low Stock:**
+- Identify items that are running low;items that are less than or equal to 10 in quantity
+13. **Logout:**
 - Click the "Logout" button in the top-right corner to end your session.
+### Employee Access
+**Note:** As an employee, you only have access to the following features:
+
+* Processing sales
+* Viewing sales history
+* Deleting  sales
+* Viewing inventory
+* Checking low stock
+
+You do not have access to the following features:
+
+* Managing inventory (adding, removing, or updating items)
+* Generating reports of daily,monthly or yearly sales
+
+If you need access to these features, please contact your manager or administrator.
+
+### Manager/ Administrator Access
+
+As a manager or administrator, you have access to all features,
 ## Database
 The system uses an SQLite database (`sales_record.db`) to store sales records and user information. The database is automatically created when you run the initialization script.
+- **Note:** If you want to create a new admin;
+```console
+cd backend
+python init_db.py
+```
 ## Security
 - User passwords are hashed using Werkzeug's security features before being stored in the database.
 - Flask-Login is used to manage user sessions securely.

@@ -172,6 +172,13 @@ class SalesRecord:
             self.conn.commit()
             return deleted_sale
         return None
+    
+    def get_weekly_total(self, start_date):
+        end_date = (datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=6)).strftime('%Y-%m-%d')
+        self.cursor.execute('SELECT SUM(quantity * price) FROM sales WHERE date BETWEEN ? AND ?',
+                        (start_date, end_date))
+        result = self.cursor.fetchone()[0]
+        return result if result else 0
 
     def get_monthly_total(self, year, month):
         start_date = f"{year}-{month:02d}-01"
@@ -320,6 +327,13 @@ def search_inventory():
     return jsonify({
         'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3]} for item in items]
     })
+
+@app.route('/get_weekly_total', methods=['GET'])
+@admin_required
+def get_weekly_total():
+    start_date = request.args.get('start_date')
+    total = record.get_weekly_total(start_date)
+    return jsonify({'total': total, 'start_date': start_date})
 
 @app.route('/get_monthly_total', methods=['GET'])
 @admin_required

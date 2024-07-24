@@ -108,6 +108,22 @@ function deleteSale(e) {
     }
 }
 
+// Add event listener for getting weekly total sales
+document.getElementById('getWeeklyTotalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const startDate = document.getElementById('weekStartDate').value;
+
+    fetch(`/get_weekly_total?start_date=${startDate}`)
+    .then(response => response.json())
+    .then(data => {
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        const formattedEndDate = endDate.toISOString().split('T')[0];
+        document.getElementById('weeklyTotal').textContent = `Total sales for week ${data.start_date} to ${formattedEndDate}: KES ${data.total.toFixed(2)}`;
+    })
+    .catch(error => handleError(error, 'An error occurred while fetching weekly total.'));
+});
+
 // Add event listener for getting monthly total sales
 document.getElementById('getMonthlyTotalForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -173,7 +189,7 @@ function loadInventory() {
 
         // Sort the items alphabetically
         data.items.sort((a, b) => a[1].localeCompare(b[1]));
-        
+
         data.items.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'bg-gray-100 p-3 rounded mb-2 flex justify-between items-center';
