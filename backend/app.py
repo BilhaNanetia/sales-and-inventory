@@ -1,7 +1,8 @@
 import os
 import datetime
 import sqlite3
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
+from functools import wraps
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, abort
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -20,11 +21,12 @@ login_manager.login_view = 'login'
 
 # Define User class for Flask-Login
 class User(UserMixin):
-    def __init__(self, id, username, email, password):
+    def __init__(self, id, username, email, password, role):
         self.id = id
         self.username = username
         self.email = email
         self.password = password
+        self.role = role
 
 # Database connection helper function
 def get_db_connection():
@@ -32,13 +34,22 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+# Decorator to check for admin access
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'admin':
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
 # User loader callback for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     with get_db_connection() as conn:
         user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
     if user:
-        return User(user['id'], user['username'], user['email'], user['password'])
+        return User(user['id'], user['username'], user['email'], user['password'], user['role'])
     return None
 
 # Authentication routes
@@ -74,7 +85,7 @@ def login():
             user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
         
         if user and check_password_hash(user['password'], password):
-            user_obj = User(user['id'], user['username'], user['email'], user['password'])
+            user_obj = User(user['id'], user['username'], user['email'], user['password'], user['role'])
             login_user(user_obj)
             return redirect(url_for('index'))
         flash('Invalid username or password')
@@ -110,7 +121,7 @@ class InventoryManager:
         return self.cursor.fetchone()
 
     def get_all_items(self):
-        self.cursor.execute('SELECT * FROM inventory')
+        self.cursor.execute('SELECT * FROM inventory ORDER BY item ASC')
         return self.cursor.fetchall()
 
     def check_low_stock(self):
@@ -189,6 +200,7 @@ def index():
 
 @app.route('/add_inventory', methods=['POST'])
 @login_required
+@admin_required
 def add_inventory():
     data = request.json
     inventory_manager.add_item(data['item'], data['quantity'], data['price'])
@@ -202,6 +214,7 @@ def get_inventory():
 
 @app.route('/delete_inventory', methods=['POST'])
 @login_required
+@admin_required
 def delete_inventory():
     data = request.json
     item_id = data.get('item_id')
@@ -256,6 +269,7 @@ def add_sale():
     return jsonify({'success': True})
 
 @app.route('/get_daily_total', methods=['GET'])
+@admin_required
 def get_daily_total():
     date = request.args.get('date')
     total = record.get_daily_total(date)
@@ -299,12 +313,16 @@ def search_inventory():
             OR LOWER(CAST(id AS TEXT)) LIKE ?
         """, (f'%{query}%', f'%{query}%'))
         items = cursor.fetchall()
+
+    # Sort the items alphabetically
+    items.sort(key=lambda x: x[1].lower())
     
     return jsonify({
         'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3]} for item in items]
     })
 
 @app.route('/get_monthly_total', methods=['GET'])
+@admin_required
 def get_monthly_total():
     year = int(request.args.get('year'))
     month = int(request.args.get('month'))
@@ -312,6 +330,7 @@ def get_monthly_total():
     return jsonify({'total': total})
 
 @app.route('/get_yearly_total', methods=['GET'])
+@admin_required
 def get_yearly_total():
     year = int(request.args.get('year'))
     total = record.get_yearly_total(year)

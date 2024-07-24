@@ -23,7 +23,10 @@
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-center text-white shadow-text">BeeMoto Sales and Inventory Tracker</h1>
-            <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" aria-label="Logout">Logout</a>
+            <div>
+                <span class="text-white mr-4">Welcome, {{ current_user.username }} ({{ current_user.role }})</span>
+                <a href="{{ url_for('logout') }}" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" aria-label="Logout">Logout</a>
+            </div>
         </div>
         
         <!-- Search Inventory -->

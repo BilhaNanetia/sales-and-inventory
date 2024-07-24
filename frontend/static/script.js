@@ -162,6 +162,7 @@ document.getElementById('addInventoryForm').addEventListener('submit', function(
 
 // Function to load inventory
 function loadInventory() {
+    console.log('loadInventory function called');
     fetch('/get_inventory')
     .then(response => response.json())
     .then(data => {
@@ -169,6 +170,10 @@ function loadInventory() {
         const itemSelect = document.getElementById('item');
         inventoryList.innerHTML = '';
         itemSelect.innerHTML = '<option value="">Select an item</option>';
+
+        // Sort the items alphabetically
+        data.items.sort((a, b) => a[1].localeCompare(b[1]));
+        
         data.items.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'bg-gray-100 p-3 rounded mb-2 flex justify-between items-center';
