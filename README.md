@@ -20,7 +20,7 @@ BeeMoto Sales and Inventory Tracker is a web application designed to help manage
 - **Reporting:**
     - Get daily, weekly, monthly, and yearly totals for sales.
 - **Low Stock Alerts:**
-    - Identify items with low stock levels to prevent inventory shortages.
+    - Identify items with low stock levels to prevent inventory shortages;items that are less than or equal to 10 in quantity
 ## Technology Stack
 - Backend:
   - Python 3.x 
@@ -108,7 +108,7 @@ python app.py
 You do not have access to the following features:
 
 * Managing inventory (adding, removing, or updating items)
-* Generating reports of daily,monthly or yearly sales
+* Generating reports of daily, weekly, monthly or yearly sales
 
 If you need access to these features, please contact your manager or administrator.
 
