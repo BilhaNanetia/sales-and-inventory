@@ -49,6 +49,32 @@ document.getElementById('addSaleForm').addEventListener('submit', function(e) {
         alert('An error occurred while adding the sale.');
     });
 });
+
+document.getElementById('mpesaPaymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const phone_number = document.getElementById('phone_number').value;
+    const amount = parseFloat(document.getElementById('payment_amount').value);
+
+    fetch('/initiate_payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number, amount }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        const statusElement = document.getElementById('mpesaPaymentStatus');
+        if (data.success) {
+            statusElement.textContent = 'Payment initiated successfully. Please complete the payment on your phone.';
+        } else {
+            statusElement.textContent = `Payment failed: ${data.error || data.errorMessage}`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('mpesaPaymentStatus').textContent = 'An error occurred while initiating the payment.';
+    });
+});
+
 // Add event listener for getting daily total sales
 document.getElementById('getDailyTotalForm').addEventListener('submit', function(e) {
     e.preventDefault();

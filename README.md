@@ -68,6 +68,7 @@ python app.py
 2. **Adding a Sale:**
 - Search for an item by name or select an item from the drop down and fill in the quantity.**You can only add a sale of an item that has been added to the inventory.**
 - Click "Add Sale" to record the transaction.
+- Enter the customer's phone number and payment amount in the Lipa na Mpesa section if the customer is paying through Mpesa.
 3. **Viewing Daily Sales:**
 - Select a date in the "View Daily Sales" section.
 - Click "View Sales" to see a list of all sales for that day.
