@@ -354,16 +354,19 @@ def initiate_payment():
                 'error': 'Phone number and amount are required'
             }), 400
 
-        # Validate phone number format 
-        if not (phone_number.startswith('254') or len(phone_number) == 12):
+        # Validate and format phone number format 
+        if phone_number.startswith('0') and len(phone_number) == 10:
+            # Convert 07XXXXXXXX to 254XXXXXXXXX
+            phone_number = '254' + phone_number[1:]
+        elif not (phone_number.startswith('254') and len(phone_number) == 12):
             return jsonify({
                 'success': False,
-                'error': 'Invalid phone number format. Use 254XXXXXXXXX'
+                'error': 'Invalid phone number format. Use 07XXXXXXXX or 254XXXXXXXXX'
             }), 400
-
+        
         # Validate amount (assuming amount should be positive)
         try:
-            amount = float(amount)
+            amount = int(amount)
             if amount <= 0:
                 raise ValueError
         except ValueError:
