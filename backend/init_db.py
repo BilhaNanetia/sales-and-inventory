@@ -40,7 +40,7 @@ def create_tables():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             item TEXT UNIQUE NOT NULL,
             quantity INTEGER NOT NULL,
-            price REAL NOT NULL
+            price REAL NOT NULL,
         )
     ''')
 

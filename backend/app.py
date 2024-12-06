@@ -458,22 +458,48 @@ def delete_sale():
 @login_required
 def search_inventory():
     query = request.args.get('query', '').lower()
-    
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT * FROM inventory
             WHERE LOWER(item) LIKE ?
+            OR LOWER(category) LIKE ?
             OR LOWER(CAST(id AS TEXT)) LIKE ?
-        """, (f'%{query}%', f'%{query}%'))
+        """, (f'%{query}%', f'%{query}%', f'%{query}%'))
         items = cursor.fetchall()
 
-    # Sort the items alphabetically
+    # Sort the items alphabetically by item name
     items.sort(key=lambda x: x[1].lower())
-    
+
     return jsonify({
-        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3]} for item in items]
+        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3], 'category': item[4]} for item in items]
     })
+
+
+@app.route('/filter_inventory_by_category', methods=['GET'])
+@login_required
+def filter_inventory_by_category():
+    category_filter = request.args.get('category', '').lower()  
+
+    if not category_filter:
+        return jsonify({'error': 'Category parameter is required'}), 400  
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM inventory
+            WHERE LOWER(category) LIKE ?
+        """, (f'%{category_filter}%',))
+        items = cursor.fetchall()
+
+    # Sort the items alphabetically by item name
+    items.sort(key=lambda x: x[1].lower())
+
+    return jsonify({
+        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3], 'category': item[4]} for item in items]
+    })
+
 
 @app.route('/get_weekly_total', methods=['GET'])
 @admin_required

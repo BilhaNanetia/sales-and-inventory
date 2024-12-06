@@ -183,11 +183,13 @@ document.getElementById('addInventoryForm').addEventListener('submit', function(
     const item = document.getElementById('inventoryItem').value;
     const quantity = parseInt(document.getElementById('inventoryQuantity').value);
     const price = parseFloat(document.getElementById('inventoryPrice').value);
+    const category = parseFloat(document.getElementById('category').value);
+
 
     fetch('/add_inventory', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item, quantity, price })
+        body: JSON.stringify({ item, quantity, price, category })
     })
     .then(response => processResponse(response))
     .then(data => {
@@ -296,6 +298,7 @@ function searchInventory() {
                     <th class="text-left">Name</th>
                     <th class="text-left">Quantity</th>
                     <th class="text-left">Price</th>
+                    <th class="text-left">Category</th>
                     <th class="text-left">Action</th>
                 </tr>
             `;
@@ -307,6 +310,7 @@ function searchInventory() {
                     <td>${item.name}</td>
                     <td>${item.quantity}</td>
                     <td>${item.price}</td>
+                    <td>${item.category}</td>
                     <td><button onclick="selectItem(${item.id}, '${item.name}')" class="bg-green-500 text-white px-2 py-1 rounded">Select</button></td>
                 `;
             });
@@ -319,6 +323,56 @@ function searchInventory() {
         });
 }
 
+//added filter by category
+function filterByCategory() {
+    const category = document.getElementById('categorySelect').value; 
+    
+    // Construct the URL to filter by category
+    let url = `/filter_inventory_by_category?category=${encodeURIComponent(category)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const resultsContainer = document.getElementById('searchResults');
+            resultsContainer.innerHTML = '';
+            
+            if (data.items.length === 0) {
+                resultsContainer.innerHTML = '<p>No items found for this category.</p>';
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.className = 'w-full';
+            table.innerHTML = `
+                <tr>
+                    <th class="text-left">ID</th>
+                    <th class="text-left">Name</th>
+                    <th class="text-left">Quantity</th>
+                    <th class="text-left">Price</th>
+                    <th class="text-left">Category</th>
+                    <th class="text-left">Action</th>
+                </tr>
+            `;
+            
+            data.items.forEach(item => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.price}</td>
+                    <td>${item.category}</td>
+                    <td><button onclick="selectItem(${item.id}, '${item.name}')" class="bg-green-500 text-white px-2 py-1 rounded">Select</button></td>
+                `;
+            });
+            
+            resultsContainer.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while filtering by category.');
+        });
+}
 function selectItem(id, name) {
     const selectElement = document.getElementById('item');
     selectElement.value = id;
