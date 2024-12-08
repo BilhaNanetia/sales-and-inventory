@@ -161,18 +161,18 @@ class InventoryManager:
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.cursor = self.conn.cursor()
 
-    def add_item(self, item, quantity, price):
+    def add_item(self, item, quantity, price, category):
         self.cursor.execute('SELECT id, quantity FROM inventory WHERE LOWER(item) = LOWER(?)', (item,))
         existing_item = self.cursor.fetchone()
 
         if existing_item:
             item_id, current_quantity = existing_item
             new_quantity = current_quantity + quantity
-            self.cursor.execute('UPDATE inventory SET quantity = ?, price = ? WHERE id = ?',
-                                (new_quantity, price, item_id))
+            self.cursor.execute('UPDATE inventory SET quantity = ?, price = ?, category = ? WHERE id = ?',
+                                (new_quantity, price,category, item_id))
         else:
-            self.cursor.execute('INSERT INTO inventory (item, quantity, price) VALUES (?, ?, ?)',
-                                (item, quantity, price))
+            self.cursor.execute('INSERT INTO inventory (item, quantity, price, category) VALUES (?, ?, ?, ?)',
+                                (item, quantity, price, category))
         self.conn.commit()
 
     def update_quantity(self, item_id, quantity):
@@ -274,7 +274,7 @@ def index():
 @admin_required
 def add_inventory():
     data = request.json
-    inventory_manager.add_item(data['item'], data['quantity'], data['price'])
+    inventory_manager.add_item(data['item'], data['quantity'], data['price'], data['category'])
     return jsonify({'success': True, 'message': 'Inventory updated successfully'})
 
 @app.route('/get_inventory', methods=['GET'])

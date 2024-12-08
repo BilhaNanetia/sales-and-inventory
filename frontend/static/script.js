@@ -183,7 +183,7 @@ document.getElementById('addInventoryForm').addEventListener('submit', function(
     const item = document.getElementById('inventoryItem').value;
     const quantity = parseInt(document.getElementById('inventoryQuantity').value);
     const price = parseFloat(document.getElementById('inventoryPrice').value);
-    const category = parseFloat(document.getElementById('category').value);
+    const category = document.getElementById('category').value;
 
 
     fetch('/add_inventory', {

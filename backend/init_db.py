@@ -36,11 +36,12 @@ def create_tables():
 
     # Create inventory table
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS inventory (
+        CREATE TABLE IF NOT EXISTS new_inventory (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            item TEXT UNIQUE NOT NULL,
+            item TEXT  NOT NULL,
             quantity INTEGER NOT NULL,
             price REAL NOT NULL,
+            category TEXT NOT NULL
         )
     ''')
 
