@@ -161,18 +161,18 @@ class InventoryManager:
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.cursor = self.conn.cursor()
 
-    def add_item(self, item, quantity, price):
+    def add_item(self, item, quantity, price, category):
         self.cursor.execute('SELECT id, quantity FROM inventory WHERE LOWER(item) = LOWER(?)', (item,))
         existing_item = self.cursor.fetchone()
 
         if existing_item:
             item_id, current_quantity = existing_item
             new_quantity = current_quantity + quantity
-            self.cursor.execute('UPDATE inventory SET quantity = ?, price = ? WHERE id = ?',
-                                (new_quantity, price, item_id))
+            self.cursor.execute('UPDATE inventory SET quantity = ?, price = ?, category = ? WHERE id = ?',
+                                (new_quantity, price,category, item_id))
         else:
-            self.cursor.execute('INSERT INTO inventory (item, quantity, price) VALUES (?, ?, ?)',
-                                (item, quantity, price))
+            self.cursor.execute('INSERT INTO inventory (item, quantity, price, category) VALUES (?, ?, ?, ?)',
+                                (item, quantity, price, category))
         self.conn.commit()
 
     def update_quantity(self, item_id, quantity):
@@ -274,7 +274,7 @@ def index():
 @admin_required
 def add_inventory():
     data = request.json
-    inventory_manager.add_item(data['item'], data['quantity'], data['price'])
+    inventory_manager.add_item(data['item'], data['quantity'], data['price'], data['category'])
     return jsonify({'success': True, 'message': 'Inventory updated successfully'})
 
 @app.route('/get_inventory', methods=['GET'])
@@ -458,22 +458,48 @@ def delete_sale():
 @login_required
 def search_inventory():
     query = request.args.get('query', '').lower()
-    
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT * FROM inventory
             WHERE LOWER(item) LIKE ?
+            OR LOWER(category) LIKE ?
             OR LOWER(CAST(id AS TEXT)) LIKE ?
-        """, (f'%{query}%', f'%{query}%'))
+        """, (f'%{query}%', f'%{query}%', f'%{query}%'))
         items = cursor.fetchall()
 
-    # Sort the items alphabetically
+    # Sort the items alphabetically by item name
     items.sort(key=lambda x: x[1].lower())
-    
+
     return jsonify({
-        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3]} for item in items]
+        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3], 'category': item[4]} for item in items]
     })
+
+
+@app.route('/filter_inventory_by_category', methods=['GET'])
+@login_required
+def filter_inventory_by_category():
+    category_filter = request.args.get('category', '').lower()  
+
+    if not category_filter:
+        return jsonify({'error': 'Category parameter is required'}), 400  
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM inventory
+            WHERE LOWER(category) LIKE ?
+        """, (f'%{category_filter}%',))
+        items = cursor.fetchall()
+
+    # Sort the items alphabetically by item name
+    items.sort(key=lambda x: x[1].lower())
+
+    return jsonify({
+        'items': [{'id': item[0], 'name': item[1], 'quantity': item[2], 'price': item[3], 'category': item[4]} for item in items]
+    })
+
 
 @app.route('/get_weekly_total', methods=['GET'])
 @admin_required
